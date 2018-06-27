@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Produits</title>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+</head>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+
+
+<body>
+
+
+<div class="container">
+  <div class="jumbotron zone">
+    <h1>Produits</h1> 
+    
+  </div>
+  
+  
+  
+  
+  <div class="scroll zone">
+  	<div class="zone">
+  	<button type="button" class="btn" onclick="requeteProduits()">Refresh</button>
+  </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+
+          <th>Produit</th>
+          <th>Prix</th>
+          
+
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        
+      </tbody>
+    </table>
+  </div>
+  
+  
+  <div class = "zone", id="formcmd">
+  <h1>Créer une nouvelle commande</h1>
+	  <div class="form-group">
+	  	<label for="num">Numero</label>
+		<input type="text" class="form-control" id="num"/>
+	  </div>  	
+  	
+  	
+  	<div class="form-group">
+  		<label for="adresse">adresse de livraison</label>
+		<input type="text" class="form-control" id="adresse"/>
+  	</div>
+	
+
+	<button type="button" class="btn" onclick="postCommande()">Ajouter commande</button>
+  </div>
+  
+   <div class="scroll zone">
+   <h1>Commande</h1>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+
+          <th>Numero</th>
+          <th>Adresse de livraison</th>
+          <th>Action</th>
+          
+          
+
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr id="com">
+        
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  
+    <div class="scroll zone" id="det" style="display:none">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+
+          <th>Produit</th>
+          <th>Prix</th>
+          
+
+        </tr>
+      </thead>
+      <tbody id="tbody2">
+        
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="zone">
+  	<button type="button" class="btn" onclick="valider()">Valider commande</button>
+  	<button type="button" class="btn" onclick="annuler()">Annuler commande</button>
+  </div>
+  
+  
+</div>
+
+
+</body>
+
+<script>
+
+requeteProduits();
+
+var produits = "";
+function requeteProduits(){
+	const http = new XMLHttpRequest();
+
+	http.open("GET", "http://localhost:8080/carnet-rest/carnet/produits");
+	http.send();
+
+	http.onload = () => {produits=http.responseText; 
+	console.log(produits);
+	
+	var res = produits.split('\n');
+	
+	document.getElementById("tbody").innerHTML='';
+	var arrayLength = res.length;
+	for (var i = 0; i < arrayLength; i++) {
+	    
+	    var tr = document.createElement("tr");	    
+	    var td = document.createElement("td");
+	    var td2 = document.createElement("td");
+	    var td3 = document.createElement("td");
+	    var txt = document.createElement("a");
+	    var txt2 = document.createElement("a");
+	    
+	    
+	    var split_res = res[i].split(":")
+	    txt.textContent = split_res[0];
+	    txt2.textContent = split_res[1];
+	    
+	    if(res[i]!=""){
+	    	var btn = document.createElement("button");
+		    btn.innerHTML = 'Ajouter à la commande';
+		    btn.className = split_res[0];
+		    btn.onclick = function(e){
+		    	ajouterProduitCommande(e.target.className);
+		    };
+	    	td3.appendChild(btn);
+	    }
+	    
+	    
+	    
+	    
+	    td.appendChild(txt);
+	    td2.appendChild(txt2);
+	    
+	    
+	    tr.appendChild(td);
+	    tr.appendChild(td2);
+	    tr.appendChild(td3);
+	    document.getElementById("tbody").appendChild(tr);
+	}
+	}
+	
+	
+}
+
+var commandeEnCours = false;
+
+function postCommande(){
+	
+	
+	if (commandeEnCours == false){
+	const http = new XMLHttpRequest();
+	var num = document.getElementById("num").value;
+	
+	var adresse = document.getElementById("adresse").value;
+	
+	var url = "http://localhost:8080/carnet-rest/carnet/commandes?num="+num+"&adresse="+adresse;
+
+	http.open("POST", url);
+	http.send();
+	commandeEnCours = true;
+	document.getElementById("formcmd").style.display="none";
+	http.onload = () => {console.log(http.responseText);
+		var displayCommande = document.getElementById("com");
+		var nume = document.createElement("td");
+		var adr = document.createElement("td");
+		var td3 = document.createElement("td");
+		nume.innerHTML = num;
+		nume.id = "numCommande";
+		adr.textContent = adresse;
+		
+		
+		var btn = document.createElement("button");
+	    btn.innerHTML = 'Details';
+	    btn.className = num;
+	    
+	    btn.onclick = function(e){
+	    	detailsCommande(e.target.className);
+	    };
+    	td3.appendChild(btn);
+		
+    	displayCommande.appendChild(nume);
+		displayCommande.appendChild(adr);
+		displayCommande.appendChild(td3);
+		
+	
+	
+	}
+	
+	}
+}
+
+function detailsCommande(num){
+	console.log("details of commande "+num);
+	document.getElementById("tbody2").innerHTML='';
+	var produitsCommande = "";
+	const http = new XMLHttpRequest();
+
+	http.open("GET", "http://localhost:8080/carnet-rest/carnet/details?commande="+num);
+	http.send();
+
+	http.onload = () => {produitsCommande=http.responseText; 
+	console.log(produitsCommande);
+	
+	
+	var res = produitsCommande.split('\n');
+	var arrayLength = res.length;
+	for (var i = 0; i < arrayLength; i++) {
+		
+		split_res = res[i].split(":");
+		var tr = document.createElement("tr");	    
+		var td = document.createElement("td");
+		var td2 = document.createElement("td");
+		
+		td.textContent = split_res[0];
+		td2.textContent = split_res[1];
+		
+		tr.appendChild(td);
+		tr.appendChild(td2);
+		
+		document.getElementById("tbody2").appendChild(tr);
+		
+	}
+	
+	document.getElementById("det").style.display = "block";
+	}
+}
+
+function ajouterProduitCommande(nomProduit){
+	if (document.getElementById("numCommande")!=null){
+		
+	
+	const http = new XMLHttpRequest();
+	
+	var numCommande = document.getElementById("numCommande").innerHTML;
+	
+	var url = "http://localhost:8080/carnet-rest/carnet/commandes?nomProduit="+nomProduit+"&commande="+numCommande;
+	
+	http.open("PUT", url);
+	http.send();
+	console.log(nomProduit);
+
+	http.onload = () => console.log(http.responseText);
+	}
+	
+}
+
+
+function valider(){
+	if (document.getElementById("numCommande")!=null){
+		const http = new XMLHttpRequest();
+		var numCommande = document.getElementById("numCommande").innerHTML;
+		var url = "http://localhost:8080/carnet-rest/carnet/commandes/valider?commande="+numCommande;
+		http.open("PUT", url);
+		http.send();
+		http.onload = () => {console.log(http.responseText);
+		document.getElementById("com").innerHTML='';
+		
+		document.getElementById("num").value="";
+		document.getElementById("adresse").value="";
+		document.getElementById("formcmd").style.display="block";
+		commandeEnCours = false;
+		}
+	}
+	
+	
+	
+}
+
+function annuler(){
+	if (document.getElementById("numCommande")!=null){
+		const http = new XMLHttpRequest();
+		var numCommande = document.getElementById("numCommande").innerHTML;
+		var url = "http://localhost:8080/carnet-rest/carnet/commandes?commande="+numCommande;
+		http.open("DELETE", url);
+		http.send();
+		http.onload = () => {console.log(http.responseText);
+		document.getElementById("com").innerHTML='';
+		
+		document.getElementById("num").value="";
+		document.getElementById("adresse").value="";
+		document.getElementById("formcmd").style.display="block";
+		commandeEnCours = false;
+		}
+	}
+}
+
+</script>
+<style>
+
+.zone{
+	
+	margin-top: 15%;
+}
+
+</style>
+
+
+</html>

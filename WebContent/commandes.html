@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Commandes</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+</head>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+
+<body>
+
+<div class="container">
+  <div class="jumbotron zone">
+    <h1>Commandes</h1> 
+    
+  </div>
+  <div class="zone">
+  	<button type="button" class="btn" onclick="requeteCommandes()">Refresh</button>
+  </div>
+  
+  
+  
+  <div class="scroll zone">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+
+          <th>Numero</th>
+          <th>Adresse</th>
+          <th>Statut</th>
+          <th>Action</th>
+          
+
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        
+      </tbody>
+    </table>
+  </div>
+  
+ 
+  
+  <div class="zone">
+  <h1>Ajouter un produit</h1>
+  	<div class="form-group">
+	  	<label for="nomP">Nom du produit</label>
+		<input type="text" class="form-control" id="nomP"/>
+	  </div>  	
+  	
+  	
+  	<div class="form-group">
+  		<label for="prix">prix en euros</label>
+		<input type="number" class="form-control" id="prix"/>
+  	</div>
+  	
+  	<button type="button" class="btn" onclick="postProduit()">Ajouter produit</button>
+  
+  </div>
+  
+  <div>
+  	<a href="http://localhost:8080/carnet-rest/app/page">Liste des clients</a>
+  </div>
+  <div>
+  	<a href="http://localhost:8080/carnet-rest/app/produits">Liste des produits</a>
+  </div>
+   
+</div>
+
+
+<script type="text/javascript">
+requeteCommandes();
+var commandes = "";
+function requeteCommandes(){
+	const http = new XMLHttpRequest();
+
+	http.open("GET", "http://localhost:8080/carnet-rest/carnet/commandes");
+	http.send();
+
+	http.onload = () => {commandes=http.responseText; 
+	console.log(commandes);
+	
+	var res = commandes.split('\n');
+	
+	document.getElementById("tbody").innerHTML='';
+	var arrayLength = res.length;
+	for (var i = 0; i < arrayLength; i++) {
+	    
+	    var tr = document.createElement("tr");	    
+	    var td = document.createElement("td");
+	    var td2 = document.createElement("td");
+	    var td3 = document.createElement("td");
+	    var td4 = document.createElement("td");
+	    
+	    split_res = res[i].split(":");
+	    td.textContent = split_res[0];
+	    td2.textContent = split_res[1];
+	    td3.textContent = split_res[2];
+	    
+	    tr.appendChild(td);
+	    tr.appendChild(td2);
+	    tr.appendChild(td3);
+	    
+	    if (split_res[0] != ""){
+	    	btn = document.createElement("button");
+	    	btn.innerHTML = 'Supprimer';
+		    btn.className = split_res[0];
+		    btn.onclick = function(e){
+		    	supprimerCommande(e.target.className);
+		    };
+	    	td4.appendChild(btn);
+	    	tr.appendChild(td4);
+	    }
+	    
+	    
+	    
+	   
+	    
+	    
+	    
+	    document.getElementById("tbody").appendChild(tr);
+	}
+	}
+	
+	
+}
+
+
+
+
+function postProduit(){
+	const http = new XMLHttpRequest();
+	var nomP = document.getElementById("nomP").value;
+	
+	var prix = document.getElementById("prix").value;
+	
+	var url = "http://localhost:8080/carnet-rest/carnet/produits?nom="+nomP+"&prix="+prix;
+
+	http.open("POST", url);
+	http.send();
+
+	http.onload = () => {console.log(http.responseText);
+	document.getElementById("nomP").value="";
+	document.getElementById("prix").value="";
+	
+	}
+}
+
+function supprimerCommande(commande){
+	const http = new XMLHttpRequest();
+	var url = "http://localhost:8080/carnet-rest/carnet/commandes?commande="+commande;
+	http.open("DELETE", url);
+	http.send();
+	http.onload = () => {console.log(http.responseText);
+	requeteCommandes();
+	
+	}
+}
+
+</script>
+
+
+</body>
+
+<style>
+.zone{
+	margin-bottom : 8%;
+}
+</style>
+</html>

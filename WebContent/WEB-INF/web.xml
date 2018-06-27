@@ -1,0 +1,48 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	id="WebApp_ID" version="3.0">
+	<display-name>Carnet</display-name>
+	<servlet>
+		<servlet-name>Jersey RESTful Application</servlet-name>
+		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>jersey.config.server.provider.packages</param-name>
+			<param-value>carnet.rest</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Jersey RESTful Application</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+    	<servlet-name>clients</servlet-name>
+    	<jsp-file>/clients.html</jsp-file>
+	</servlet>
+	<servlet-mapping>
+    	<servlet-name>clients</servlet-name>
+    	<url-pattern>/app/clients</url-pattern>
+	</servlet-mapping>
+	<servlet>
+    	<servlet-name>commandes</servlet-name>
+    	<jsp-file>/commandes.html</jsp-file>
+	</servlet>
+	<servlet-mapping>
+    	<servlet-name>commandes</servlet-name>
+    	<url-pattern>/app/commandes</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+    	<servlet-name>produits</servlet-name>
+    	<jsp-file>/produits.html</jsp-file>
+	</servlet>
+	<servlet-mapping>
+    	<servlet-name>produits</servlet-name>
+    	<url-pattern>/app/produits</url-pattern>
+	</servlet-mapping>
+	
+
+	
+</web-app>
